@@ -52,9 +52,10 @@ end
 
 
 % reset the GPU and get info about its memory
-gg = gpuDevice(1);
+gg = gpuDevice;
+%fprintf('GPU index %i\n',gg.Index);
 
-gpu_overhead = 0.05; % let's shoot for using 90% of GPU RAM, we can make this higher if necessary
+gpu_overhead = 0.1; % let's shoot for using 90% of GPU RAM, we can make this higher if necessary
 
 total_mem_available = gg.AvailableMemory; % in bytes
 
@@ -130,14 +131,6 @@ for ii = 1:niter
     end
 
 
-
-% ----- using repmat ------- (1.31 s); 500 models: 3.78 s, 3.79s, 3.804 s
-%     bf_b(idx_to_replace,:)   = reshape(myX(sub2ind(size(myX),...        
-%         reshape( repmat(1:n_predictors,length(idx_to_replace),1),n_predictors*length(idx_to_replace),1 ),... 
-%         repmat(idx_to_replace.',n_predictors,1),...
-%         repmat(minidx(idx_to_replace).',n_predictors,1) )),length(idx_to_replace),n_predictors); % this one's a bit harder.... sub2ind (X: n_predictors x n_dimensions x n_models)
-%     
-%     
 
     clear mg mysse myPredg idx_to_replace newmin minidx;
     

@@ -23,5 +23,17 @@ if ~exist('models_to_test','var')
     models_to_test = 500;
 end
 
-[a,b,c] = gridfitgpu_test(data,model(:,:,(1:models_to_test)));
+[a1,b1,c1] = gridfitgpu(data,model(:,:,(1:models_to_test)));
 
+
+% if more than 1 GPU is available, also run the model split across GPUs.
+% note that performnce may be slower than a single GPU if a small problem
+% is tested - but when problems are large (take > 10-30 s on a singe GPU),
+% often there is substantial time savings. but - always check your
+% particular problem to see if it makes sense to parallelize or not!
+if gpuDeviceCount > 1
+    tic;
+    [a2,b2,c2] = gridfitgpu_par(data,model(:,:,(1:models_to_test)));
+    toc;
+    delete(gcp('nocreate'));
+end
