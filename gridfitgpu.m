@@ -26,6 +26,9 @@
 % to be negative (if true, exclude negative fits; otherwise, allow them)
 % - this is a carryover from vistasoft, and so only (for now) operates on
 %   first dimension; can easily extend to others in updates
+% gpu_overhead: 0-1, %age of GPU memory to leave open for OS tasks (should
+% be ~0.1-0.3, higher if the GPU also handles graphics, lower if
+% compute-only)
 %
 % OUTPUTS:
 % bf_idx: 1 for each dimension (vox)
@@ -42,11 +45,11 @@
 
 
 
-function [bf_idx,bf_b,bf_sse] = gridfitgpu(data, model,trunc_neg_fits)
+function [bf_idx,bf_b,bf_sse] = gridfitgpu(data, model,trunc_neg_fits,gpu_overhead)
 
 % if not otherwise specified, don't allow for negative fits (to align w/
 % vistasoft gridfit procedures)
-if nargin < 3
+if nargin < 3 || isempty(trunc_neg_fits)
     trunc_neg_fits = 1;
 end
 
@@ -54,8 +57,9 @@ end
 % reset the GPU and get info about its memory
 gg = gpuDevice;
 %fprintf('GPU index %i\n',gg.Index);
-
-gpu_overhead = 0.1; % let's shoot for using 90% of GPU RAM, we can make this higher if necessary
+if nargin < 4 || isempty(gpu_overhead)
+    gpu_overhead = 0.125; % let's shoot for using 90% of GPU RAM, we can make this higher if necessary
+end
 
 total_mem_available = gg.AvailableMemory; % in bytes
 
